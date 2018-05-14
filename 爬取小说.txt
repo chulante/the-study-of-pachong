@@ -1,4 +1,4 @@
-#!/usr/bin/python3.3
+#!/usr/bin/python3
 
 import requests
 import bs4
@@ -15,20 +15,20 @@ def get_html(url):
 def get_content(url):
     url_list = []
     html     = get_html(url)
-    soup     = ba4.beautifulsoup(html,'lxml')
+    soup     = bs4.BeautifulSoup(html,'lxml')
 
     catelog_list = soup.find_all('div',class_='index_toplist mright mbottom')
     history_list = soup.find_all('div',class_='index_toplist mbottom')
     for cate in catelog_list:
         name = cate.find('div',class_='toptab').span.string
         with open('novel_list.csv','a+')as f:
-            f.wirte("\n the leixing:{} \n".format(name))
+            f.write("\n the leixing:{} \n".format(name))
 
         general_list = cate.find(style='display:block;')
         book_list = general_list.find_all('li')
         for book in book_list:
             link = 'http://www.qu.la/'+book.a['href']
-		    title = book.a['titile']
+            title = book.a['titile']
             url_list.append(link)
             with open('novel_list.csv','a')as f:
                 f.write("xiaoshuoname:{<} \t xiaoshuoadd:{<} \n".fomat(title,link))
@@ -60,7 +60,7 @@ def get_txt_url(url):
 
 def get_one_txt(url,txt_name):
     html = get_html(url).replace('<br/>','\n')
-	soup = bs4.BeautifulSoup(html,'lxml')
+    soup = bs4.BeautifulSoup(html,'lxml')
     try:
         txt = soup.find('div',id='content').text.replace('chaptererror();','')
         title = soup.find('title').text
@@ -70,5 +70,22 @@ def get_one_txt(url,txt_name):
             print('itis ok'.format(txt_name,title))
     except:
         print('something wrong')
-		
-				
+
+def get_all_page(url_list):
+    for url in url_list:
+        page_list,txt_name = get_txt_url(url)
+
+        for page_url in page_list:
+            get_one_txt(page_url,txt_name)
+            print('jindu {}%'.format(url_list.index(url) / len(url_list)*100))
+
+def main():
+    base_url = 'http://www.qu.la/paihangbang/'
+    url_list = get_content(base_url)
+    url_list = list(set(url_list))
+    get_all_txt(url_list)
+	
+
+if __name__=='__main__':
+    main()
+	
