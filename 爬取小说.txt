@@ -1,7 +1,5 @@
 #!/usr/bin/python3.3
 
-
-
 import requests
 import bs4
 
