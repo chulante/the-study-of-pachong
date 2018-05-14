@@ -1,1 +1,74 @@
+#!/usr/bin/python3.3
 
+import requests
+import bs4
+
+def get_html(url):
+    try:
+        r = requests.get(url,timeout=30)
+        r.raise_for_status
+        r.encoding = ('utf-8')
+        return r.text
+    except:
+        return 'sth wrong'
+
+def get_content(url):
+    url_list = []
+    html     = get_html(url)
+    soup     = ba4.beautifulsoup(html,'lxml')
+
+    catelog_list = soup.find_all('div',class_='index_toplist mright mbottom')
+    history_list = soup.find_all('div',class_='index_toplist mbottom')
+    for cate in catelog_list:
+        name = cate.find('div',class_='toptab').span.string
+        with open('novel_list.csv','a+')as f:
+            f.wirte("\n the leixing:{} \n".format(name))
+
+        general_list = cate.find(style='display:block;')
+        book_list = general_list.find_all('li')
+        for book in book_list:
+            link = 'http://www.qu.la/'+book.a['href']
+		    title = book.a['titile']
+            url_list.append(link)
+            with open('novel_list.csv','a')as f:
+                f.write("xiaoshuoname:{<} \t xiaoshuoadd:{<} \n".fomat(title,link))
+    for cate in history_list:
+        name = cate.find('div',class_='toptab').span.string
+        with open('novel_list.csv','a')as f:
+             f.write("\n xiaoshuozhonglei:{} \n".format(name))
+        general_list = cate.find(style='dispaly:block')
+        book_list = general_list.find_all('li')
+        for book in book_list:
+            link = 'http://www.qu.la/' + book.a['href']
+            title = book.a['title']
+            url_list.append(link)
+            with open('novel_list.csv','a')as f:
+                f.write("xiaoshuoname:{:<} \t xiaoshuoadd: {:<} \n".format(title,link))
+	return url_list
+def get_txt_url(url):
+    url_list = []
+    html = get_html(url)
+    soup = bs4.beautifulSoup(html,'lxml')
+    lista = soup.find_all('dd')
+    txt_name = soup.find('hi').text
+    with open('/home/xiaoshuo.txt'.format(txt_name),"a+")as f:
+        f.write('xiaoshuotitle:{} \n'.format(txt_name))
+    for url in lista:
+        rul_list.append('http://www.qu.la/' + url.a['href'])
+
+    return url_list,txt_name
+
+def get_one_txt(url,txt_name):
+    html = get_html(url).replace('<br/>','\n')
+	soup = bs4.BeautifulSoup(html,'lxml')
+    try:
+        txt = soup.find('div',id='content').text.replace('chaptererror();','')
+        title = soup.find('title').text
+        with open('/home/xiaoshuo.txt'.format(txt_name),"a")as f:
+            f.write(title + '\n\n')
+            f.write(txt)
+            print('itis ok'.format(txt_name,title))
+    except:
+        print('something wrong')
+		
+				
